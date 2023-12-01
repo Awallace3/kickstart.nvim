@@ -42,7 +42,7 @@ P.S. You can delete this when you're done too. It's your config now :)
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.maplocalleader = '\\'
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    https://github.com/folke/lazy.nvim
@@ -69,7 +69,7 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
-  -- Git related plugins
+ -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
 
@@ -112,7 +112,22 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim', opts = {
+    plugins = {
+        marks = true,
+        registers = true,
+        spelling = { enabled = false, suggestions = 20 },
+        presets = {
+            operators = false,
+            motions = false,
+            text_objects = false,
+            windows = false,
+            nav = false,
+            z = false,
+            g = false
+        }
+    }
+  } },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -151,7 +166,13 @@ require('lazy').setup({
       end,
     },
   },
-
+  {
+ 'folke/tokyonight.nvim',
+    -- priority = 1000,
+    config = function()
+      -- vim.cmd.colorscheme 'tokyonight'
+    end,
+  },
   {
     -- Theme inspired by Atom
     'navarasu/onedark.nvim',
@@ -229,7 +250,7 @@ require('lazy').setup({
   --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
 }, {})
 
 -- [[ Setting options ]]
@@ -241,6 +262,7 @@ vim.o.hlsearch = false
 
 -- Make line numbers default
 vim.wo.number = true
+vim.wo.relativenumber = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
@@ -378,7 +400,7 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash', 'julia', 'markdown', 'latex' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = false,
@@ -492,9 +514,13 @@ require('which-key').register {
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'More git', _ = 'which_key_ignore' },
-  ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
+  ['<leader>r'] = {
+    name = '[R]ename', n = 'which_key_ignore',
+    -- name = 'source', _ = ':w <bar>so %<cr>'
+  },
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+  ['<leader>L'] = { name = '[L]azy', _ = ':Lazy' },
 }
 
 -- mason-lspconfig requires that these setup functions are called in this order
@@ -575,7 +601,7 @@ cmp.setup {
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
+    ['<C-y>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
